@@ -175,6 +175,11 @@ def _apply_content_styles() -> None:
         """
         <style>
         .block-container { padding-top: 1.35rem; padding-bottom: 2rem; }
+        :root {
+            --metric-value-size: clamp(1.2rem, 1.7vw + 0.7rem, 2.5rem);
+            --metric-label-size: clamp(0.75rem, 0.55vw + 0.58rem, 0.9rem);
+            --metric-delta-size: clamp(0.8rem, 0.5vw + 0.62rem, 1rem);
+        }
         div[data-testid="stMetric"] {
             background: #f7f8fa;
             border: 1px solid #eceff3;
@@ -184,19 +189,32 @@ def _apply_content_styles() -> None:
         div[data-testid="stVerticalBlock"] > div:has(> div[data-testid="stMetric"]) {
             gap: 0.6rem;
         }
+        div[data-testid="stMetricLabel"] p,
+        div[data-testid="stMetricLabel"] {
+            font-size: var(--metric-label-size) !important;
+        }
+        div[data-testid="stMetricValue"] {
+            font-size: var(--metric-value-size) !important;
+            line-height: 1.3 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: clip !important;
+        }
+        div[data-testid="stMetricDelta"] {
+            font-size: var(--metric-delta-size) !important;
+        }
         .period-range-card {
             background: #f7f8fa;
             border: 1px solid #eceff3;
             border-radius: 10px;
             padding: 0.35rem 0.8rem 0.55rem 0.8rem;
-            container-type: inline-size;
         }
         .period-range-label {
-            font-size: 0.875rem;
+            font-size: var(--metric-label-size);
             color: rgba(49, 51, 63, 0.6);
         }
         .period-range-value {
-            font-size: clamp(0.8rem, 9cqi, 1.75rem);
+            font-size: var(--metric-value-size);
             font-weight: 600;
             color: rgb(49, 51, 63);
             line-height: 1.3;
@@ -206,7 +224,7 @@ def _apply_content_styles() -> None:
         }
         .period-range-delta {
             color: rgb(9, 171, 59);
-            font-size: 0.9rem;
+            font-size: var(--metric-delta-size);
             font-weight: 500;
         }
         </style>

@@ -7,6 +7,7 @@ from typing import NamedTuple
 import pandas as pd
 import plotly.express as px
 import streamlit as st
+import streamlit.components.v1 as components
 
 import dashboard_config
 
@@ -176,24 +177,31 @@ def _apply_content_styles() -> None:
         <style>
         .block-container { padding-top: 1.35rem; padding-bottom: 2rem; }
         :root {
-            --metric-value-size: clamp(1.2rem, 1.7vw + 0.7rem, 2.5rem);
-            --metric-label-size: clamp(0.75rem, 0.55vw + 0.58rem, 0.9rem);
-            --metric-delta-size: clamp(0.8rem, 0.5vw + 0.62rem, 1rem);
+            --metric-value-size: clamp(0.7rem, 11cqi, 2.5rem);
+            --metric-label-size: clamp(0.7rem, 5.5cqi, 0.9rem);
+            --metric-delta-size: clamp(0.7rem, 6cqi, 1rem);
         }
         div[data-testid="stMetric"] {
             background: #f7f8fa;
             border: 1px solid #eceff3;
             border-radius: 10px;
             padding: 0.35rem 0.8rem 0.55rem 0.8rem;
+            container-type: inline-size;
+            min-width: 0;
         }
         div[data-testid="stVerticalBlock"] > div:has(> div[data-testid="stMetric"]) {
             gap: 0.6rem;
+        }
+        div[data-testid="stHorizontalBlock"] > div {
+            min-width: 0;
         }
         div[data-testid="stMetricLabel"] p,
         div[data-testid="stMetricLabel"] {
             font-size: var(--metric-label-size) !important;
         }
-        div[data-testid="stMetricValue"] {
+        div[data-testid="stMetricValue"],
+        div[data-testid="stMetricValue"] div,
+        div[data-testid="stMetricValue"] p {
             font-size: var(--metric-value-size) !important;
             line-height: 1.3 !important;
             white-space: nowrap !important;
@@ -208,6 +216,8 @@ def _apply_content_styles() -> None:
             border: 1px solid #eceff3;
             border-radius: 10px;
             padding: 0.35rem 0.8rem 0.55rem 0.8rem;
+            container-type: inline-size;
+            min-width: 0;
         }
         .period-range-label {
             font-size: var(--metric-label-size);
@@ -220,6 +230,7 @@ def _apply_content_styles() -> None:
             line-height: 1.3;
             white-space: nowrap;
             overflow: hidden;
+            text-overflow: clip;
             margin: 0.1rem 0 0.15rem 0;
         }
         .period-range-delta {
@@ -230,6 +241,79 @@ def _apply_content_styles() -> None:
         </style>
         """,
         unsafe_allow_html=True,
+    )
+    components.html(
+        """
+        <script>
+        (function () {
+          const win = window.parent;
+          const doc = win.document;
+          const MIN = 10;
+
+          function targets() {
+            return [
+              ...doc.querySelectorAll('[data-testid="stMetricValue"]'),
+              ...doc.querySelectorAll(".period-range-value"),
+            ];
+          }
+
+          function fitOne(el) {
+            const nodes = [el, ...el.querySelectorAll("div, p, span")];
+            nodes.forEach((node) => node.style.removeProperty("font-size"));
+            let size = parseFloat(win.getComputedStyle(el).fontSize) || 22;
+            let guard = 48;
+            const overflow = () =>
+              nodes.some((node) => node.scrollWidth > node.clientWidth + 1);
+            while (overflow() && size > MIN && guard--) {
+              size -= 0.5;
+              nodes.forEach((node) =>
+                node.style.setProperty("font-size", size + "px", "important")
+              );
+            }
+          }
+
+          function fitAll() {
+            targets().forEach(fitOne);
+          }
+
+          let timer = null;
+          function scheduleFit() {
+            if (timer !== null) {
+              return;
+            }
+            timer = win.setTimeout(function () {
+              timer = null;
+              fitAll();
+            }, 50);
+          }
+
+          fitAll();
+          setTimeout(fitAll, 80);
+          setTimeout(fitAll, 250);
+          setTimeout(fitAll, 700);
+
+          if (!win.__metricTextFitBound) {
+            win.__metricTextFitBound = true;
+            win.addEventListener("resize", scheduleFit);
+            const observer = new win.ResizeObserver(scheduleFit);
+            const watch = () => {
+              targets().forEach((el) => observer.observe(el));
+              doc.querySelectorAll('[data-testid="stMetric"], .period-range-card')
+                .forEach((el) => observer.observe(el));
+            };
+            watch();
+            new win.MutationObserver(function () {
+              watch();
+              scheduleFit();
+            }).observe(doc.body, {
+              childList: true,
+              subtree: true,
+            });
+          }
+        })();
+        </script>
+        """,
+        height=0,
     )
 
 

@@ -1,0 +1,19 @@
+# 로컬 실행 환경 — GitHub에 올리지 않음
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# 에디터·Streamlit 로컬 설정
+.idea/
+.vscode/
+.streamlit/
+
+# 데이터·비밀정보
+*.xlsx
+*.xls
+.env
+.env.*

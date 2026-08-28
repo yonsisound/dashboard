@@ -184,6 +184,31 @@ def _apply_content_styles() -> None:
         div[data-testid="stVerticalBlock"] > div:has(> div[data-testid="stMetric"]) {
             gap: 0.6rem;
         }
+        .period-range-card {
+            background: #f7f8fa;
+            border: 1px solid #eceff3;
+            border-radius: 10px;
+            padding: 0.35rem 0.8rem 0.55rem 0.8rem;
+            container-type: inline-size;
+        }
+        .period-range-label {
+            font-size: 0.875rem;
+            color: rgba(49, 51, 63, 0.6);
+        }
+        .period-range-value {
+            font-size: clamp(0.8rem, 9cqi, 1.75rem);
+            font-weight: 600;
+            color: rgb(49, 51, 63);
+            line-height: 1.3;
+            white-space: nowrap;
+            overflow: hidden;
+            margin: 0.1rem 0 0.15rem 0;
+        }
+        .period-range-delta {
+            color: rgb(9, 171, 59);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
         </style>
         """,
         unsafe_allow_html=True,
@@ -775,11 +800,17 @@ def _render_dashboard_filter_summary(
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("진행상태", filters.selected_status)
     col2.metric("조회일", f"{filters.selected_date:%Y-%m-%d}", f"{snapshot_count:,}건")
-    col3.metric(
-        "조회기간",
-        f"{filters.start_date:%m-%d} ~ {filters.end_date:%m-%d}",
-        f"{period_count:,}건",
-    )
+    with col3:
+        st.markdown(
+            f'<div class="period-range-card">'
+            f'<div class="period-range-label">조회기간</div>'
+            f'<div class="period-range-value">'
+            f"{filters.start_date:%m-%d} ~ {filters.end_date:%m-%d}"
+            f"</div>"
+            f'<div class="period-range-delta">↑ {period_count:,}건</div>'
+            f"</div>",
+            unsafe_allow_html=True,
+        )
     exclusion_label = _exclusion_summary_text(filters.exclusions, filters.specs)
     col4.metric("제외", "없음" if exclusion_label == "제외 항목 없음" else "적용 중")
     if excluded_count:

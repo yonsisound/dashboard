@@ -606,6 +606,25 @@ Streamlit이 예전 `dashboard_config`를 붙잡고 `CRITERIA_FILE_NAME` import 
 
 ---
 
+### 12단계. GitHub 업로드
+
+- 저장소: https://github.com/yonsisound/dashboard
+- `venv`·`__pycache__`는 `.gitignore`로 제외하고 소스 11개만 올림
+- 로컬에서 수정한 내용은 커밋 후 `git push`해야 GitHub에 반영됨
+
+---
+
+### 13단계. 요약 카드 글자 크기·반응형 (추가)
+
+상단 요약(진행상태 / 조회일 / 조회기간 / 제외)과 기간·주간 탭의 숫자 카드가 좁은 화면에서 `...`으로 잘리던 문제를 고침.
+
+- 조회기간 값이 칸보다 길면 글자 크기를 줄여 전체가 보이게 함
+- 같은 화면의 다른 숫자 카드도 조회기간과 글자 크기를 맞춤
+- 브라우저 너비가 바뀌면 카드 칸 너비에 맞춰 글자 크기가 같이 변함 (`clamp` + 칸 넘침 시 자동 축소)
+- 잘림 표시(`...`)는 쓰지 않음
+
+---
+
 ### 확인된 데이터 규모 (개발 시점)
 
 | 항목 | 값 |
@@ -618,6 +637,8 @@ Streamlit이 예전 `dashboard_config`를 붙잡고 `CRITERIA_FILE_NAME` import 
 ---
 
 ### GitHub에 올릴 때
+
+현재 원격 저장소는 [yonsisound/dashboard](https://github.com/yonsisound/dashboard) 이다.
 
 폴더 안에는 가상환경(`venv`) 때문에 파일이 1만 개가 넘는다. **소스만 올리면 11개**이며, `venv`는 올리지 않는다. GitHub 웹에서 폴더 통째로 올리면 업로드가 실패한다.
 

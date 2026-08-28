@@ -426,6 +426,28 @@ def _render_reload_button() -> None:
     st.sidebar.caption("구글 드라이브의 최신 접수건을 다시 읽어 옵니다.")
 
 
+_FILTER_STATE_KEYS = (
+    ("selected_status", "saved_selected_status"),
+    ("selected_date", "saved_selected_date"),
+    ("period_start", "saved_period_start"),
+    ("period_end", "saved_period_end"),
+)
+
+
+def _save_filter_state() -> None:
+    """조회 조건 위젯이 사라져도 값이 남도록 세션에 복사한다."""
+    for widget_key, saved_key in _FILTER_STATE_KEYS:
+        if widget_key in st.session_state:
+            st.session_state[saved_key] = st.session_state[widget_key]
+
+
+def _restore_filter_state() -> None:
+    """다른 메뉴에서 돌아온 뒤 조회 조건 위젯이 다시 그려지기 전에 값을 되돌린다."""
+    for widget_key, saved_key in _FILTER_STATE_KEYS:
+        if widget_key not in st.session_state and saved_key in st.session_state:
+            st.session_state[widget_key] = st.session_state[saved_key]
+
+
 def _render_sidebar_filters(result: LoadResult, working: pd.DataFrame) -> DashboardFilters:
     st.sidebar.header("조회 조건")
 
@@ -500,7 +522,7 @@ def _render_sidebar_filters(result: LoadResult, working: pd.DataFrame) -> Dashbo
     )
 
     st.sidebar.caption(f"데이터 기간: {min_date:%Y-%m-%d} ~ {max_date:%Y-%m-%d}")
-    return DashboardFilters(
+    filters = DashboardFilters(
         selected_date=selected_date,
         start_date=start_date,
         end_date=end_date,
@@ -508,6 +530,8 @@ def _render_sidebar_filters(result: LoadResult, working: pd.DataFrame) -> Dashbo
         exclusions=ExclusionList(),
         specs=[],
     )
+    _save_filter_state()
+    return filters
 
 
 def _exclusion_summary_text(
@@ -922,6 +946,7 @@ def _render_dashboard_filter_summary(
 
 
 def main() -> None:
+    _save_filter_state()
     _apply_content_styles()
     st.title("서비스 접수 현황")
 
@@ -943,6 +968,7 @@ def main() -> None:
             DataLoadError("개인정보 컬럼이 남아 있어 화면을 표시할 수 없습니다.")
         )
 
+    _restore_filter_state()
     menu = _render_sidebar_menu()
     criteria_list, criteria_warning = load_criteria_file()
     if criteria_warning:
